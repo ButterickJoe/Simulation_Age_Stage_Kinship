@@ -94,8 +94,8 @@ df_my_variant <- df_my_variant%>%
             kin = "younger sisters" ,method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
 
-df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(Age_foc, Age_foc + 4, sep = "-"),
-                                            Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
+df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(5*Age_foc, 5*Age_foc + 4, sep = "-"),
+                                        Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
 
 ic_lab <- as_labeller(c('1' = "Focal born in cluster 1",
                         '2' = "Focal born in cluster 2",
@@ -110,9 +110,8 @@ clus_lab <- c("Cluster 1", "Cluster 2","Cluster 3",
 col_scal <- RColorBrewer::brewer.pal(10, "Set1")
 
 df_my_variant%>%
-  ggplot(aes(x = age_foc_class, y = full_dist , color = kin_stage, fill = kin_stage)) + 
+  ggplot(aes(x = Foc_age_class, y = cum_kin , color = stage, fill = stage)) + 
   geom_bar(position = "stack" , stat = "identity") + 
-  facet_wrap(~ic_state_focal, labeller = ic_lab)+
   scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
   scale_fill_manual(labels = clus_lab,values = col_scal[1:no_stage]) + theme_bw() +
   labs( fill = "Sister's stage", color = "Sister's stage") + 
