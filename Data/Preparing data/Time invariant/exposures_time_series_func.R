@@ -16,7 +16,7 @@ time_series_exposures <- function(lists_of_years_of_exposures){
 
 time_dep_pop_df_2016_2021 <- list()
 foreach(year = list_of_years_needed1)%do%{
-  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "nomis_2016_2021.xlsx" ),
+  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "Demogaphic data" , "nomis_2016_2021.xlsx" ),
                                             sheet = paste(year), skip=5)
 
   colnames(test_data_pop_counts) <- c("LAD" , "CODE" ,"0_4","5_9","10_14","15_19",
@@ -34,7 +34,7 @@ full_pop_counts_2016_2021 <- do.call("rbind" , time_dep_pop_df_2016_2021)
 
 time_dep_pop_df_2009_2015 <- list()
 foreach(year = list_of_years_needed2)%do%{
-  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "nomis_2009_2015.xlsx" ),
+  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "Demogaphic data", "nomis_2009_2015.xlsx" ),
                                             sheet = paste(year), skip=5)
   colnames(test_data_pop_counts) <- c("LAD" , "CODE" ,"0_4","5_9","10_14","15_19",
                                       "20_24","25_29","30_34","35_39","40_44",
@@ -49,7 +49,7 @@ full_pop_counts_2009_2015 <- do.call("rbind" , time_dep_pop_df_2009_2015)
 
 time_dep_pop_df_2002_2008 <- list()
 foreach(year = list_of_years_needed3)%do%{
-  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "nomis_2002_2008.xlsx" ),
+  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "Demogaphic data", "nomis_2002_2008.xlsx" ),
                                             sheet = paste(year), skip=5)
   
   colnames(test_data_pop_counts) <- c("LAD" , "CODE" ,"0_4","5_9","10_14","15_19",
@@ -66,7 +66,7 @@ full_pop_counts_2002_2008 <- do.call("rbind" , time_dep_pop_df_2002_2008)
 
 time_dep_pop_df_1995_2001 <- list()
 foreach(year = list_of_years_needed4)%do%{
-  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "nomis_1995_2001.xlsx" ),
+  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "Demogaphic data", "nomis_1995_2001.xlsx" ),
                                             sheet = paste(year), skip=5)
   
   colnames(test_data_pop_counts) <- c("LAD" , "CODE" ,"0_4","5_9","10_14","15_19",
@@ -83,7 +83,7 @@ full_pop_counts_1995_2001 <- do.call("rbind" , time_dep_pop_df_1995_2001)
 
 time_dep_pop_df_1991_1994 <- list()
 foreach(year = list_of_years_needed5)%do%{
-  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "nomis_1991_1994.xlsx" ),
+  test_data_pop_counts <- readxl::read_xlsx(here::here("Data", "Demogaphic data", "nomis_1991_1994.xlsx" ),
                                             sheet = paste(year), skip=5)
   colnames(test_data_pop_counts) <- c("LAD" , "CODE" ,"0_4","5_9","10_14","15_19",
                                       "20_24","25_29","30_34","35_39","40_44",
