@@ -1,8 +1,8 @@
-source(here::here("Matrix models"  , "General functions" , "Functions_matrix.R"))
-source(here::here("Matrix models"  , "General functions" , "Focal_IC.R" ))
-source(here::here("Matrix models"  , "General functions" ,  "Genealogical_MCs.R"))
-source(here::here("Matrix models"  , "General functions" ,  "df_construction.R"))
-source(here::here("Matrix models"  , "General functions" ,  "matrix_product.R"))
+source(here::here("Matrix model"  , "General functions" , "matrix_operations.R"))
+source(here::here("Matrix model"  , "General functions" , "create_Focal_IC.R" ))
+source(here::here("Matrix model"  , "General functions" ,  "create_MCs.R"))
+source(here::here("Matrix model"  , "General functions" ,  "data_frame_construction.R"))
+source(here::here("Matrix model"  , "General functions" ,  "matrix_prod.R"))
 
 
 ### inputs years to over; A=2 number of reproductive events, list of projection matrices
