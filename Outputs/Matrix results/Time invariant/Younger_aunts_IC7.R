@@ -94,7 +94,8 @@ df_my_variant <- df_my_variant%>%
             kin = "younger sisters" ,method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
 
-
+df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(Age_foc, Age_foc + 4, sep = "-"),
+                                            Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
 
 ic_lab <- as_labeller(c('1' = "Focal born in cluster 1",
                         '2' = "Focal born in cluster 2",
