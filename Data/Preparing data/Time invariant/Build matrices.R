@@ -1,3 +1,5 @@
+no_age <-19
+no_stage <- 7
 
 source(here::here("Data", "Preparing data" , "Time invariant" , "exposures_time_series_func.R"))
 source(here::here("Data", "Preparing data" , "Time invariant", "align_mort_and_exposure_func.R"))
@@ -14,8 +16,8 @@ fs::dir_create(fig_out)
 
 
 ## read in mortality and fertility over the periods (1981-2021)
-deaths_data <- readxl::read_xlsx( here::here(  "Data" , "Demographic data" , "LAD_deaths_1981_2021.xlsx"), skip=5, sheet=4)
-fert_data <- readr::read_csv(here::here("Data",, "Demographic data" , "ew_asfrs.csv"))
+deaths_data <- readxl::read_xlsx( here::here(  "Data" , "Demogaphic data" , "LAD_deaths_1981_2021.xlsx"), skip=5, sheet=4)
+fert_data <- readr::read_csv(here::here("Data", "Demogaphic data" , "ew_asfrs.csv"))
 
 #### read in the exposures (population sizes) over period (1991-2021)
 list_of_years_needed5 <- c("1991" , "1992" ,"1993" ,"1994" )
@@ -30,8 +32,8 @@ exposures_data <- time_series_exposures(list(list_of_years_needed1,list_of_years
 
 ##### Read in migration data. Data comes in 2 parts, which I rbind -- e.g.,
 
-l18 <- readr::read_csv( here::here( "Data", , "Demographic data" , "2020_p1.csv" ))
-l19 <- readr::read_csv( here::here(  "Data", , "Demographic data" , "2020_p2.csv" ))
+l18 <- readr::read_csv( here::here( "Data",  "Demogaphic data" , "2020_p1.csv" ))
+l19 <- readr::read_csv( here::here(  "Data" , "Demogaphic data" , "2020_p2.csv" ))
 
 ### Cluster the age-specific migration between LADS, choice here is by "outRate" or "inRate"  
 ## Inputs: choose number of stages (clusters to use) -- here no_stage = 7
