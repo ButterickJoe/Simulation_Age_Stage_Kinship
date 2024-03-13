@@ -48,7 +48,7 @@ foreach(reps = 1:no_reps)%do%{
     ind <- get_older(ind,TT,Fers,Mots)
     
     ######### Sex (or reproduction) ##################################################################
-    babies_ <- have_sex_lapply(ind, TT, Fers, Mots)
+    babies_ <- have_sex(ind, TT, Fers, Mots)
     ind <- babies_[[1]]
     newborn_number <- babies_[[2]]
     newborn_cohort <- babies_[[3]]

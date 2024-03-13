@@ -95,3 +95,37 @@ df_my_variant <- df_my_variant%>%
   transmute(Age_foc = age_foc, cum_kin = full_dist, stage = kin_stage,
             kin = "younger sisters" ,method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
+
+
+df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(Age_foc, Age_foc + 4, sep = "-"),
+                                            Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
+
+ic_lab <- as_labeller(c('1' = "Focal born in cluster 1",
+                        '2' = "Focal born in cluster 2",
+                        '3' = "Focal born in cluster 3",
+                        '4' = "Focal born in cluster 4",
+                        '5' = "Focal born in cluster 5",
+                        '6' = "Focal born in cluster 6",
+                        '7' = "Focal born in cluster 7"))  # for facet plots
+clus_lab <- c("Cluster 1", "Cluster 2","Cluster 3",
+              "Cluster 4", "Cluster 5",
+              "Cluster 6", "Cluster 7")
+col_scal <- RColorBrewer::brewer.pal(10, "Set1")
+
+df_my_variant%>%
+  ggplot(aes(x = age_foc_class, y = full_dist , color = kin_stage, fill = kin_stage)) + 
+  geom_bar(position = "stack" , stat = "identity") + 
+  facet_wrap(~ic_state_focal, labeller = ic_lab)+
+  scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
+  scale_fill_manual(labels = clus_lab,values = col_scal[1:no_stage]) + theme_bw() +
+  labs( fill = "Sister's stage", color = "Sister's stage") + 
+  ylab("Expected no. sisters") + xlab("Age of Focal") +
+  theme(text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        plot.title = element_text(size = 13),
+        axis.text.x = element_text(angle = (45+90)/3 , hjust = 0.8)) + 
+  theme(legend.position = "top") + 
+  ggeasy::easy_center_title() + scale_x_discrete() 
+
+
+
