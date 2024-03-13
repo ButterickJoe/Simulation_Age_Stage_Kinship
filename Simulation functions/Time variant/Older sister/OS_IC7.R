@@ -4,21 +4,17 @@ source(here::here("Simulation functions","Demographic events","change_stage.R"))
 source(here::here("Simulation functions","Demographic events","kill_individuals.R"))
 source(here::here("Simulation functions","Demographic events","get_older.R"))
 
-
 df_ages <- rep(seq(0,18,1),each=7)
 df_stages <- rep(seq(1,7,1), 19)
-
 
 no_reps <- 5000
 sim_list <- list()
 transient_SPD_list <- list()
-foreach(reps = 1:no_reps)%do%{
-  
+foreach(reps = 1:no_reps)%do%{  
   Mots_IC <- Mortality_list[[1]]
   Fers_IC <- Fertility_list[[1]]
   
   # record the time-varying "stable (or not so) population structure"
-  
   age_stage_df <- data.frame(Ages = df_ages, Stages = df_stages)
   age_stage_df$age_stage <- paste0(age_stage_df$Ages , "-" , age_stage_df$Stages)
   age_stage_df$New_age_stage <- NA
@@ -32,19 +28,16 @@ foreach(reps = 1:no_reps)%do%{
                      mother_ID = rep(NA, length(stage_dist)), ## mother ID links Focal and other kin
                      alive = rep(1,length(age_dist)),
                      mig_probs = NA) 
-  
   tran_prob <- lapply(1:nrow(ind), function(x){
     age <- ind$Age[x] + 1
     stage <- ind$stage[x]
     return(TT[[age]][,stage])})
   ind$mig_probs <- tran_prob
-  
   babies_prob <- unlist(lapply(1:nrow(ind), function(x){
     age <- ind$Age[x] + 1
     stage <- ind$stage[x]
     return(Fers_IC[[stage]][age])}) )
   ind$prob_have_sex_and_child <- babies_prob
-  
   die_prob <- unlist(lapply(1:nrow(ind), function(x){
     age <- ind$Age[x] + 1
     stage <- ind$stage[x]
@@ -61,7 +54,6 @@ foreach(reps = 1:no_reps)%do%{
       Mots <- Mortality_list[[j]]}
     else{Fers <- Fertility_list[[18]]
     Mots <- Mortality_list[[18]]}
-    
     ########### Migration ############################################################################
     ind <- create_new_stage(ind, TT, Fers, Mots)
     
@@ -80,13 +72,10 @@ foreach(reps = 1:no_reps)%do%{
     normalised_transient_SPD <- age_stage_df$New_age_stage%>%unlist()
     transient_SPD[,(2+j)] <- normalised_transient_SPD/(sum(normalised_transient_SPD))
     
-    ############ Here I pick some random focal, and its mother, and subsequently track them through the simulation
-    ### For the first year focal, by definition has a mother, but no sister
-    
+    ############ Here I pick some random focal and find its mother. I count all others in the pop with same mother ID (older sisters)
     if(j==8){
-      #if(is.null(born_F)){break}
       Foc_df <- data.frame()
-      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage == 3)
+      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage == 7)
       focal <- focal_s[sample(nrow(focal_s), 1) ,]
       focal$kin <- "focal"
       focal$alive <- 1
@@ -107,7 +96,7 @@ foreach(reps = 1:no_reps)%do%{
       Foc_df <- rbind(focal, mother, o_sister)
       Foc_df$year <- j-1 ## By construction, the first ID in the sisters is -1 as there are none yet!
     } 
-    ### For years > 1 focal can die, lose mother, gain and lose sisters
+    ### After the year of Focal's birth, it can die, mother can die, and older sister can die.
     else{
       temp_foc <- filter(ind, ID == focal$ID & mother_ID == focal$mother_ID)
       temp_foc <- temp_foc%>%dplyr::select(ID,Age,stage,mother_ID,alive)
