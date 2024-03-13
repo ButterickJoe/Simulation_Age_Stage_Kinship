@@ -1,3 +1,6 @@
+F_list <- read_rds(here::here("Data", "Time variant", "TV_list_fert_MS_NAT.Rds"))
+U_list <- read_rds(here::here("Data", "Time variant", "TV_list_suv_MS_NAT.Rds"))
+
 F_0 <- F_list[[1]]
 U_0 <- U_list[[1]]
 A_0 <- U_0 + F_0
