@@ -7,7 +7,7 @@ source(here::here("Matrix model"  , "General functions" ,  "create_MCs.R"))
 source(here::here("Matrix model"  , "General functions" ,  "data_frame_construction.R"))
 source(here::here("Matrix model"  , "General functions" ,  "matrix_prod.R"))
 source(here::here("Matrix model"  , "Caswell" ,  "Programme.R"))
-source(here::here("Matrix model"  , "Time variant genealogy" ,"W0_1",  "Younger_sisters.R"))
+source(here::here("Matrix model"  , "Kin projections",  "Younger_sisters.R"))
 
 df_out <- here::here("Outputs","Time invariant", "saved dataframes")
 fs::dir_create(df_out)
