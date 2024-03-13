@@ -1,4 +1,4 @@
-source(here::here("Matrix models"  , "General functions" , "Functions_matrix.R"))
+source(here::here("Matrix model"  , "General functions" , "matrix_operations.R"))
 
 
 
