@@ -59,8 +59,8 @@ no_age
 no_stage
 init_cond_kin1 <- list() ## conditioning of focal's initial stage
 foreach(foc_IC = 3 )%do%{
-  list_of_younger_sisters <- list()
-  kin_description <- list(c("A=1","B=1")) ## check version
+  list_of_younger_aunts <- list()
+  kin_description <- list(c("A=1","B=2")) ## check version
   foreach(kin = kin_description)%do%{
     A_relation <- kin[[1]]
     B_relation <- kin[[2]]
@@ -70,25 +70,23 @@ foreach(foc_IC = 3 )%do%{
     foreach(age_focal = 0 : (no_age-1))%do%{
       x_inx <- age_focal + 1
       X[, (x_inx)] <- 
-        project_backwards_1_forwards_1_gen_over_steps_Y(no_age, no_stage, 2, foc_IC, age_focal, P_FF, P_UU, lit_FF, lit_UU)
+        project_backwards_2_forwards_1_gen_over_steps_Y(no_age, no_stage, 2, foc_IC, age_focal, P_FF, P_UU, lit_FF, lit_UU)
     }
     
     XX <- kin_dists_full(X, no_age, 1, no_stage)
     XX$kin_relation <- rep( paste(kin[[1]] , kin[[2]], sep = ",") )
-    list_of_younger_sisters[[ (1+length(list_of_younger_sisters)) ]] <- XX }
+    list_of_younger_aunts[[ (1+length(list_of_younger_aunts)) ]] <- XX }
   ## end of loop
-  list_of_younger_sisters_new <- do.call("rbind" , list_of_younger_sisters)
-  list_of_younger_sisters_new$ic_state_focal <- rep(foc_IC, nrow(list_of_younger_sisters_new))
-  init_cond_kin1[[(foc_IC)]] <- list_of_younger_sisters_new }
+  list_of_younger_aunts_new <- do.call("rbind" , list_of_younger_aunts)
+  list_of_younger_aunts_new$ic_state_focal <- rep(foc_IC, nrow(list_of_younger_aunts_new))
+  init_cond_kin1[[(foc_IC)]] <- list_of_younger_aunts_new }
 
 
-full_younger_sis <- do.call("rbind" , init_cond_kin1)
-full_younger_sis%>%head()
-full_younger_sis$ic_state_focal
+full_younger_aunt <- do.call("rbind" , init_cond_kin1)
 ############################################# Results ###########################
 
 ## data frame of matrix results
-df_my_variant <- full_younger_sis%>%dplyr::select(full_dist,age_foc,kin_age,kin_stage)%>%
+df_my_variant <- full_younger_aunt%>%dplyr::select(full_dist,age_foc,kin_age,kin_stage)%>%
   group_by(age_foc, kin_stage)%>%summarise(full_dist = sum(full_dist))%>%ungroup()
 
 df_my_variant <- df_my_variant%>%
