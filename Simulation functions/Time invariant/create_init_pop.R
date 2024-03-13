@@ -3,13 +3,13 @@ source(here::here("Matrix model"  , "General functions" , "matrix_operations.R")
 
 
 
-UU <- read_rds(here::here("Deomgraphic rates", "Age and Stage", "U_list.Rds"))
-FF <- read_rds(here::here("Deomgraphic rates", "Age and Stage", "F_list.Rds"))
-TT <- read_rds(here::here("Deomgraphic rates", "Age and Stage", "T_list.Rds"))
+UU <- read_rds(here::here("Data", "Time invariant", "U_list.Rds"))
+FF <- read_rds(here::here("Data", "Time invariant", "F_list.Rds"))
+TT <- read_rds(here::here("Data", "Time invariant", "T_list.Rds"))
 TT <- lapply(TT, function(x){abs(x)})
 TT[[18]]
 min(TT[[18]])
-HH <- read_rds(here::here("Deomgraphic rates", "Age and Stage", "H_list.Rds"))
+HH <- read_rds(here::here("Data", "Time invariant", "H_list.Rds"))
 no_stage <- length(UU)
 no_age <- nrow(UU[[1]])
 
@@ -40,8 +40,8 @@ f_1
 f_7
 
 Fers<-list(f_1,f_2,f_3,f_4,f_5,f_6,f_7)
-Mots<-list(u_1,u_2,u_3,u_4,u_5,u_6,u_7)
-Mots[[1]]
+
+################ Stage specific moratlity vectors
 
 u_1 <- list()
 u_2 <- list()
@@ -59,9 +59,10 @@ for(i in 1:length(UU)){
   u_6 <- c(diag(UU[[6]][-1,-ncol(UU[[6]])]),0)
   u_7 <- c(diag(UU[[7]][-1,-ncol(UU[[7]])]),0)
 }
-diag(UU[[1]][-1,-ncol(UU[[1]])])
-length(u_1)
-length(f_1)
+
+Mots<-list(u_1,u_2,u_3,u_4,u_5,u_6,u_7)
+
+############### pop structure from projection matrix
 
 UB <- block_diag_function(UU) ## BD age survival matrix (one block each stage)
 FB <- block_diag_function(FF) ## BD Fertility between stage matrix (one block for each age)
@@ -89,15 +90,11 @@ hist(mad)
 
 df<-data.frame(age = rep(NA,7*19),stage = rep(NA,7*19), value = rep(NA,7*19))
 for(i in 1:length(sps)){
-  
   index_age <- (i-1)%/%7
   index_stage <- (i-1)%%7 + 1
-  
   df$age[i] <- index_age
   df$stage[i] <- index_stage
-  df$value[i] <- sps[i]*10000
-  
-  
+  df$value[i] <- sps[i]*10000  
 }
 
 df%>%summarise(sum(value))
@@ -105,7 +102,6 @@ df%>%group_by(stage)%>%summarise(sum = sum(value)/50000)
 tot_age_class <- df%>%group_by(age)%>%summarise(sum = sum(value))%>%as.data.frame()
 tot_age_class <- round(tot_age_class[,2])
 tot_age_class
-
 
 age_dist <- rep(df$age, times = round(df$value) )
 age_dist
@@ -118,15 +114,3 @@ length(stage_dist)
 length(age_dist)
 
 
-
-#################### Projections #####################
-
-A_proj <- U_proj + F_proj
-eigen(A_proj)
-SD(A_proj)
-matrix.power(A_proj+diag(133), 132)%>%min()
-dim(A_proj)
-min(U_proj)
-
-plot(sps)
-plot(matrix.power(A_proj,10)%*%sps)
