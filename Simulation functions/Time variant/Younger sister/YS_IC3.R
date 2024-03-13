@@ -135,7 +135,4 @@ full_simulation2%>%
   xlab("Focal's age") + ylab("Expected younger sisters") + ggtitle("... replicates of stoch B-D process") +
   xlim(c(0,19)) + ylim(c(0,0.25))
 
-df_out <- here::here("Examples", "ONS data", "Age and Stage", "Time variant"  , "saved dataframes")
-fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_sim_stage_FULL_5000_strict_IC3_TV.Rds" ))
