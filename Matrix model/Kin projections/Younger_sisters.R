@@ -6,16 +6,14 @@ source(here::here("Matrix model"  , "General functions" ,  "data_frame_construct
 source(here::here("Matrix model"  , "General functions" ,  "matrix_prod.R"))
 
 
-
-
 project_backwards_1_forwards_1_gen_over_steps_Y <- function(na, ns,
                                                             foc_age_0, ## list position when focal born (t=0 in model)
                                                             foc_INIT, ## focal's initial stage
                                                             x, ## focal's age for projections 
-                                                            list_mat_W, ## genealogical reproductions
-                                                            list_mat_V, ## genealogical survivals
-                                                            list_mat_F, ## fert projections
-                                                            list_mat_U){
+                                                            list_mat_W, ## list of genealogical reproduction matrices
+                                                            list_mat_V, ## list of genealogical survival matrices
+                                                            list_mat_F, ## list of fertility matrices
+                                                            list_mat_U){ ## list of mortality matrices
   
   no_age <- na
   no_stage <- ns
