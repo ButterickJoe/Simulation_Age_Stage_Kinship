@@ -1,5 +1,5 @@
 
-
+### Newborns are drawn from a Poisson distribution with rate = ASFR (depending also on stage)
 
 have_sex <- function(ind, transition_matrix_list, fertility_vector_list, mortality_vector_list){
   
