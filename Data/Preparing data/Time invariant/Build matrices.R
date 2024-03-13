@@ -172,7 +172,7 @@ for(age in 1:19){
 }
 
 T_list <- age_spec_mat_list_new
-
+T_list[[18]]
 
 # H_list is the re-distribution 
 no_age = nrow(U_list[[1]])
@@ -249,7 +249,7 @@ fert_plt <-aligned_clustered_rates[[1]]%>%group_by(Age,cluster1)%>%summarise(asf
                                       text = element_text(size = 14),
                                       legend.position = "top") + ylab("ASFR") + xlab("Age class")
 
-
+fert_plt
 ggsave( paste0( fig_out ,"/", "fert_rate_outR.png") , fert_plt, width = 8, height = 6, dpi = 300)
 
 ## Migration rates are visualised from output of "cluster_mig_func"
@@ -263,14 +263,14 @@ CLUST_MIG_2020[[3]] ## year by year
 ################################### UK mapping #######################################
 
 library(sf)
-map <- st_read(here::here(  "Data" , , "Demogaphic data", "LAD_DEC_2021_UK_BUC.shp"))
+map <- st_read(here::here(  "Data" ,  "Demogaphic data", "LAD_DEC_2021_UK_BUC.shp"))
 shp <- fortify(map, region = 'LAD21CD')
 shp$index <- 1:nrow(shp)
 link <- read.csv(here::here(  "Data"  ,  "Demogaphic data", "Local_Authority_Districts_December_2021_UK_BUC_2022.csv"))
 names(link)[1] <- "index"
 names(link)[2] <- "LA21CD"
 shp <- merge(shp, link, by.x = 'index', by.y = 'index', all.x = TRUE) %>% rename("LAD"=LAD21NM.x,"Code"=LAD21CD)
-shp %<>% filter(substr(Code,1,1) != "N")
+shp <- shp %>% filter(substr(Code,1,1) != "N")
 shp$LAD[which(shp$LAD=="Rhondda Cynon Taf")] <- "Rhondda Cynon Taff"
 shp%>%head()
 clustered_migration_df
@@ -282,8 +282,7 @@ plot_MAP <- tmpc2 %>%
   scale_fill_manual(values=discrete_colours[1:7]) +
   theme_void() +
   labs(fill="Cluster")
+
+plot_MAP
 ggsave( paste0( fig_out ,"/", "UK_clusters.png") , plot_MAP)
 
-clustered_migration_df%>%filter(cluster==1)%>%dplyr::select(LAD_code)%>%unique()%>%nrow()
-clustered_migration_df$LAD_code%>%unique()%>%length()
-shp$Code%>%length()
