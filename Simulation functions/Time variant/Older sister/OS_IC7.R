@@ -282,16 +282,6 @@ pp <- df_marg_age%>%dplyr::select(age, stable,year2,year4,year6,year8)%>%
 
 pp
 
-plt_out <- here::here("Examples", "ONS data", "Age and Stage", "Time variant"  , "Figs", "Theory_vs_sim_SPS")
-fs::dir_create(plt_out)
-
-df_marg_age$year1%>%sum()
-
-
-
-ggsave(plot_Jakub, file = paste0(plt_out , "/" , "diverging_SPS_new.png" ), width = 8, height = 5, dpi = 300)
-
-
 
 
 
