@@ -11,11 +11,8 @@ source(here::here("Matrix model"  , "Kin projections",  "Younger_sisters.R"))
 df_out <- here::here("Outputs","Time invariant", "saved dataframes")
 fs::dir_create(df_out)
 
-
 plt_out <-  here::here("Outputs","Time invariant", "Figs")
 fs::dir_create(df_out)
-
-
 
 UU <- read_rds(here::here("Data", "Time invariant", "U_list.Rds"))
 FF <- read_rds(here::here("Data", "Time invariant", "F_list.Rds"))
@@ -35,11 +32,7 @@ dim(HB)
 U_proj <- t(K_perm_mat(no_stage, no_age))%*%UB%*%K_perm_mat(no_stage, no_age)%*%TB
 F_proj <- t(K_perm_mat(no_stage, no_age))%*%HB%*%K_perm_mat(no_stage, no_age)%*%FB
 
-####################### Genealogical models ###
-
-# TIME VARIANT MODEL
-
-################ TIME VARIANT NEEDS A LIST OF REP MATS
+####################### Genealogical model
 lit_UU <- list()
 lit_FF <- list()
 for(i in 1:50){
@@ -55,8 +48,6 @@ for(i in 1:50){
   P_FF[[i]] <- pf
 }
 
-no_age
-no_stage
 init_cond_kin1 <- list() ## conditioning of focal's initial stage
 foreach(foc_IC = 3 )%do%{
   list_of_younger_sisters <- list()
@@ -72,7 +63,6 @@ foreach(foc_IC = 3 )%do%{
       X[, (x_inx)] <- 
         project_backwards_1_forwards_1_gen_over_steps_Y(no_age, no_stage, 2, foc_IC, age_focal, P_FF, P_UU, lit_FF, lit_UU)
     }
-    
     XX <- kin_dists_full(X, no_age, 1, no_stage)
     XX$kin_relation <- rep( paste(kin[[1]] , kin[[2]], sep = ",") )
     list_of_younger_sisters[[ (1+length(list_of_younger_sisters)) ]] <- XX }
@@ -80,7 +70,6 @@ foreach(foc_IC = 3 )%do%{
   list_of_younger_sisters_new <- do.call("rbind" , list_of_younger_sisters)
   list_of_younger_sisters_new$ic_state_focal <- rep(foc_IC, nrow(list_of_younger_sisters_new))
   init_cond_kin1[[(foc_IC)]] <- list_of_younger_sisters_new }
-
 
 full_younger_sis <- do.call("rbind" , init_cond_kin1)
 full_younger_sis%>%head()
