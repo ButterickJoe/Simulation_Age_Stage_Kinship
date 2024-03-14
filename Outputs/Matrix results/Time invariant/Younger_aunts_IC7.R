@@ -10,18 +10,18 @@ source(here::here("Matrix model"  , "Kin projections",  "Younger_aunts.R"))
 
 df_out <- here::here("Outputs","Time invariant", "saved dataframes")
 fs::dir_create(df_out)
-
-
 plt_out <-  here::here("Outputs","Time invariant", "Figs")
 fs::dir_create(df_out)
-
-
-
+####### Mortality, Fertility, Stage-transfer, and Redistribution (of offspring) matrices 
+### Mortality matrices are age*age, and they are unique across stage
+### Fertility matrices are stage*stage, with one for each age-class
+### Stage-transfer matrices are stage*stage, with one for each age-class
+### Redistribution matrices are age*age, with one for each stage
 UU <- read_rds(here::here("Data", "Time invariant", "U_list.Rds"))
 FF <- read_rds(here::here("Data", "Time invariant", "F_list.Rds"))
 TT <- read_rds(here::here("Data", "Time invariant", "T_list.Rds"))
 HH <- read_rds(here::here("Data", "Time invariant", "H_list.Rds"))
-
+#### Direct sums (as in Section 1.2 of paper)
 UB <- block_diag_function(UU) ## BD age survival matrix (one block each stage)
 FB <- block_diag_function(FF) ## BD Fertility between stage matrix (one block for each age)
 TB <- block_diag_function(TT) ## BD stage transition matrix (one block each stage)
@@ -35,11 +35,8 @@ dim(HB)
 U_proj <- t(K_perm_mat(no_stage, no_age))%*%UB%*%K_perm_mat(no_stage, no_age)%*%TB
 F_proj <- t(K_perm_mat(no_stage, no_age))%*%HB%*%K_perm_mat(no_stage, no_age)%*%FB
 
-####################### Genealogical models ###
-
-# TIME VARIANT MODEL
-
-################ TIME VARIANT NEEDS A LIST OF REP MATS
+####################### Genealogical model
+################ Time invariance means that we simply use the same projection/genealogical matrices at each time step
 lit_UU <- list()
 lit_FF <- list()
 for(i in 1:50){
@@ -55,8 +52,6 @@ for(i in 1:50){
   P_FF[[i]] <- pf
 }
 
-no_age
-no_stage
 init_cond_kin1 <- list() ## conditioning of focal's initial stage
 foreach(foc_IC = 3 )%do%{
   list_of_younger_aunts <- list()
@@ -72,7 +67,6 @@ foreach(foc_IC = 3 )%do%{
       X[, (x_inx)] <- 
         project_backwards_2_forwards_1_gen_over_steps_Y(no_age, no_stage, 2, foc_IC, age_focal, P_FF, P_UU, lit_FF, lit_UU)
     }
-    
     XX <- kin_dists_full(X, no_age, 1, no_stage)
     XX$kin_relation <- rep( paste(kin[[1]] , kin[[2]], sep = ",") )
     list_of_younger_aunts[[ (1+length(list_of_younger_aunts)) ]] <- XX }
@@ -80,7 +74,6 @@ foreach(foc_IC = 3 )%do%{
   list_of_younger_aunts_new <- do.call("rbind" , list_of_younger_aunts)
   list_of_younger_aunts_new$ic_state_focal <- rep(foc_IC, nrow(list_of_younger_aunts_new))
   init_cond_kin1[[(foc_IC)]] <- list_of_younger_aunts_new }
-
 
 full_younger_aunt <- do.call("rbind" , init_cond_kin1)
 ############################################# Results ###########################
@@ -93,6 +86,8 @@ df_my_variant <- df_my_variant%>%
   transmute(Age_foc = age_foc, cum_kin = full_dist, stage = kin_stage,
             kin = "younger sisters" ,method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
+
+## We could save for comparison, 
 
 df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(5*Age_foc, 5*Age_foc + 4, sep = "-"),
                                         Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
