@@ -4,9 +4,6 @@ source(here::here("Simulation functions","Demographic events","change_stage.R"))
 source(here::here("Simulation functions","Demographic events","kill_individuals.R"))
 source(here::here("Simulation functions","Demographic events","get_older.R"))
 
-
-
-
 ########## SIM YS #####################################
 
 no_reps <- 5000
