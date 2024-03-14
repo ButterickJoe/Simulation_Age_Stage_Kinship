@@ -108,7 +108,7 @@ df_my_variant%>%
         strip.text.x = element_text(size = 12),
         plot.title = element_text(size = 13),
         axis.text.x = element_text(angle = (45+90)/3 , hjust = 0.8)) + 
-  theme(legend.position = "top") + 
+  theme(legend.position = "top") + ylim(c(0,0.25))+
   ggeasy::easy_center_title() + scale_x_discrete() 
 
 
