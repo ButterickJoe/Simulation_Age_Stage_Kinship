@@ -4,11 +4,10 @@ source(here::here("Simulation functions","Demographic events","change_stage.R"))
 source(here::here("Simulation functions","Demographic events","kill_individuals.R"))
 source(here::here("Simulation functions","Demographic events","get_older.R"))
 
-########## SIM YS #####################################
 
-no_reps <- 5000
+no_reps <- 100
 sim_list <- list()
-foreach(reps = 1:no_reps)%do%{
+for(reps in 1:no_reps){
   ### Initialise population
   ind <-  data.frame(ID = seq(1,length(age_dist),1), 
                      Age = rep(age_dist, 1), ## marginal stage dist
@@ -36,7 +35,7 @@ foreach(reps = 1:no_reps)%do%{
   index_to_start <- max(ind$ID)
   
   ############################ Ecological steps j = 1 ... age #############################################################
-  foreach(j = seq(1,19,1))%do%{
+  for(j in seq(1,34,1)){
     
     ########### Migration ############################################################################
     ind <- create_new_stage(ind, TT, Fers, Mots)
@@ -51,80 +50,103 @@ foreach(reps = 1:no_reps)%do%{
     newborn_cohort <- babies_[[3]]
     
     ####### Create Focal's network of younger sisters ######
-    if(j==1){
+    if(j==15){
       Foc_df <- data.frame()
-      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==7)
+      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==3)
       focal <- focal_s[sample(nrow(focal_s), 1) ,]
+      #focal <- focal_s
       focal$kin <- "focal"
       focal$alive<-1
       focal_birth_stage <- focal$stage
-      mother <- ind%>%filter(ID == focal$mother_ID)
+      mother <- ind%>%filter(ID %in% focal$mother_ID)
       mother <- mother %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       mother$kin <- "mum"
       mother$alive <- 1
-      y_sister <- data.frame(ID = -1, Age = 0, stage = "no", mother_ID = "no", alive = 0, kin = "sister younger")
-      Foc_df <- rbind(focal, mother, y_sister)
+      
+      older_aunts <- filter(ind, mother_ID %in% mother$mother_ID  )
+      older_aunts <- filter(older_aunts, ID != mother$ID  )
+      odler_aunts <- filter(older_aunts, Age > mother$Age)
+      older_aunts <- older_aunts %>% dplyr::select(ID,Age,stage,mother_ID,alive)
+      if(nrow(older_aunts>0)){
+        older_aunts$kin = "aunts"
+        older_aunts$alive <- 1}
+      else{
+        older_aunts <- data.frame(ID = NA, Age = NA, stage = NA, mother_ID = NA, alive = NA, kin = "aunts")}
+      
+      Foc_df <- rbind(focal, mother, older_aunts)
       Foc_df$year <- j-1 ## By construction, the first ID in the sisters is -1 as there are none yet!
     } 
     else{
-      temp_foc <- filter(ind, ID == focal$ID )
+      temp_foc <- filter(ind, ID %in% focal$ID )
       temp_foc <- temp_foc %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       if(nrow(temp_foc)>0){
         temp_foc$kin <- "focal"
         temp_foc$year <- j-1}
-      else{temp_foc <- data.frame(ID = focal$ID, Age = j - 1, stage = 0, mother_ID = focal$mother_ID, alive = 0, kin = "focal")
+      else{temp_foc <- data.frame(ID = focal$ID, Age = NA, stage = NA, mother_ID = focal$mother_ID, alive = NA, kin = "focal")
       temp_foc$year <- j-1}
       
-      temp_mum <- filter(ind, ID == focal$mother_ID)
+      temp_mum <- filter(ind, ID %in% focal$mother_ID)
       temp_mum <- temp_mum %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       if(nrow(temp_mum)>0 ){
         temp_mum$kin <- "mum"
         temp_mum$year <- j-1}
-      else{temp_mum <- data.frame(ID = focal$mother_ID, Age = 0, stage = 0, mother_ID = "no", alive = 0,  kin = "mum")
+      else{temp_mum <- data.frame(ID = focal$mother_ID, Age = NA, stage = NA, mother_ID = NA, alive = NA,  kin = "mum")
       temp_mum$year <- j-1}
       
-      temp_sis <- filter(ind, mother_ID == focal$mother_ID & ID != focal$ID  & Age < temp_foc$Age)
-      temp_sis <-  temp_sis %>% dplyr::select(ID,Age,stage,mother_ID,alive)
-      if(nrow(temp_sis)>0){
-        temp_sis$kin <- "sister younger"
-        temp_sis$year <- j-1}
-      else{temp_sis <- data.frame(ID = -1, Age = 0, stage = 0, mother_ID = "no", alive = 0,  kin = "sister younger")
-      temp_sis$year <- j-1}
-      Foc_df <- rbind(Foc_df, rbind(temp_foc, temp_mum, temp_sis)) 
+      temp_older_aunts <- filter(ind, ID %in% older_aunts$ID)
+      temp_older_aunts <- temp_older_aunts %>% dplyr::select(ID,Age,stage,mother_ID,alive)
+      if(nrow(temp_older_aunts)>0){
+        temp_older_aunts$kin <- "aunts"
+        temp_older_aunts$year <- j-1}
+      else{temp_older_aunts <- data.frame(ID = NA, Age = NA, stage = NA, mother_ID = NA, alive = NA,  kin = "aunts")
+      temp_older_aunts$year <- j-1}
+      
+      
+      Foc_df <- rbind(Foc_df, rbind(temp_foc, temp_mum, temp_older_aunts)) 
     }
     
     ########### Deaths #############################################################################
     dead_ <- do_deaths(ind)
     ind <- dead_[[1]]
     deceased_coh <- dead_[[2]]
-    
-    
   }
   
   ### Focal's network for each replication #############################
   Foc_df1 <- Foc_df
   Foc_df1$sim_no <- reps
-  Foc_df1$IC <- focal_birth_stage
+  Foc_df1$IC <- rep(unique(focal_birth_stage),nrow(Foc_df1))
   sim_list[[(1+length(sim_list))]] <- Foc_df1
 }
 
 full_simulation <- do.call("rbind", sim_list)
+
 full_simulation1 <- full_simulation%>%dplyr::select(ID,Age,stage,alive,kin,year,sim_no,IC)
+
+full_simulation1
+
+full_simulation1%>%filter( (kin == "mum" | kin == "aunts") , !is.na(Age))
+
+full_simulation1%>%subset(kin == "aunts" & Age > 10)
+
 full_simulation2 <- full_simulation1%>%group_by(alive, stage, kin, year, sim_no, IC)%>%
   summarise(alive = sum(alive))%>%
   ungroup()
-full_simulation2 <- full_simulation2%>%filter(kin == "sister younger" , stage != 0 &  stage!= "no" )%>%
+
+full_simulation2
+
+full_simulation2 <- full_simulation2%>%filter(kin == "aunts" , !is.na(stage) )%>%
   group_by(year, kin, stage, IC)%>%
   summarise(expected_val = sum(alive)/no_reps)%>%
   ungroup()
+
 full_simulation2%>%
-  ggplot(aes(x = (year), y = expected_val, color = stage, fill = stage)) + theme_bw() +
+  ggplot(aes(x = (year-14), y = expected_val, color = stage, fill = stage)) + theme_bw() +
   geom_bar(position = "stack", stat = "identity") + 
-  xlab("Focal's age") + ylab("Expected younger sisters") + ggtitle("... replicates of stoch B-D process") +
-  xlim(c(0,19)) + ylim(c(0,0.25))
+  xlab("Focal's age") + ylab("Expected same age") + ggtitle("... replicates of stoch B-D process") +
+  xlim(c(0,18)) + ylim(c(0,1.5))
 
 
-df_out <- here::here("Outputs", "Time invariant"  , "saved dataframes")
+df_out <- here::here("Examples", "ONS data", "Age and Stage", "Time invariant"  , "saved dataframes")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_sim_TI_IC7.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "SS_sim_stage_FULL_5000_strict_IC7.Rds" ))

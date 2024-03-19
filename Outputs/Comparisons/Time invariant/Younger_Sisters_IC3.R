@@ -1,6 +1,6 @@
 ## data from simulation
-sim_sis_df <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "YS_IC3.Rds"))
-
+#sim_sis_df <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "YS_IC3.Rds"))
+sim_sis_df <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "YS_TI_IC3_comparison.Rds"))
 
 sim_sis_df<-sim_sis_df%>%transmute(Age_foc = (year), cum_kin = expected_val, 
                                    stage = stage, kin = kin)
@@ -10,6 +10,11 @@ sim_sis_df$method <- "stochastic simulation"
 
 df_my_variant <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "YS_matrix_IC3.Rds"))
 
+
+nrow(sim_sis_df)
+nrow(df_my_variant)
+
+df_my_variant$kin <- "sister younger"
 
 Y_SIS <- rbind(sim_sis_df,df_my_variant)
 
@@ -57,3 +62,32 @@ plt_differences <- Y_SIS%>%ggplot(aes(x = Age_class, y = cum_kin, color = stage,
 
 plt_comparison
 plt_differences
+
+
+####################
+
+Y_SIS$cum_kin <- as.numeric(Y_SIS$cum_kin)
+M_comparison <- Y_SIS%>%pivot_wider(names_from = "method", values_from = "cum_kin")
+
+M_comparison$`matrix model`
+
+M_COMP_WIDE <- M_comparison%>%
+  mutate(differnces = `stochastic simulation` - `matrix model`)
+
+M_COMP_WIDE%>%head()
+
+plot_difff <- M_COMP_WIDE%>%ggplot(aes(x = Age_class, y = differnces, color = stage, fill = stage)) +
+  geom_point()  +
+  ggtitle("differences in methods") +
+  scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
+  scale_fill_manual(labels = clus_lab, values = col_scal[1:no_stage]) + theme_bw() +
+  labs( fill = "Sister's stage", color = "Sister's stage") + 
+  ylab("differnce") + xlab("Age of focal") +
+  theme(text = element_text(size = 12),
+        strip.text.x = element_text(size = 12),
+        plot.title = element_text(size = 13),
+        axis.text.x = element_text(angle = (45+90)/3 , hjust = 0.8)) + 
+  theme(legend.position = "top") + 
+  ggeasy::easy_center_title() + scale_x_discrete()+ ylim(c(-0.01,0.01))
+
+plot_difff

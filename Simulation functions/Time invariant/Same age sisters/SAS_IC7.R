@@ -4,7 +4,6 @@ source(here::here("Simulation functions","Demographic events","change_stage.R"))
 source(here::here("Simulation functions","Demographic events","kill_individuals.R"))
 source(here::here("Simulation functions","Demographic events","get_older.R"))
 
-########## SIM YS #####################################
 
 no_reps <- 5000
 sim_list <- list()
@@ -62,8 +61,15 @@ foreach(reps = 1:no_reps)%do%{
       mother <- mother %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       mother$kin <- "mum"
       mother$alive <- 1
-      y_sister <- data.frame(ID = -1, Age = 0, stage = "no", mother_ID = "no", alive = 0, kin = "sister younger")
-      Foc_df <- rbind(focal, mother, y_sister)
+      sa_sister <- filter(ind, mother_ID == focal$mother_ID  )
+      sa_sister <- filter(sa_sister , ID != focal$ID)
+      sa_sister <- sa_sister %>% dplyr::select(ID,Age,stage,mother_ID,alive)
+      if(nrow(sa_sister>0)){
+        sa_sister$kin = "sister same age"
+        sa_sister$alive <- 1}
+      else{
+        sa_sister <- data.frame(ID = -1, Age = 0, stage = "no", mother_ID = "no", alive = 0, kin = "sister same age")}
+      Foc_df <- rbind(focal, mother, sa_sister)
       Foc_df$year <- j-1 ## By construction, the first ID in the sisters is -1 as there are none yet!
     } 
     else{
@@ -74,7 +80,6 @@ foreach(reps = 1:no_reps)%do%{
         temp_foc$year <- j-1}
       else{temp_foc <- data.frame(ID = focal$ID, Age = j - 1, stage = 0, mother_ID = focal$mother_ID, alive = 0, kin = "focal")
       temp_foc$year <- j-1}
-      
       temp_mum <- filter(ind, ID == focal$mother_ID)
       temp_mum <- temp_mum %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       if(nrow(temp_mum)>0 ){
@@ -83,12 +88,12 @@ foreach(reps = 1:no_reps)%do%{
       else{temp_mum <- data.frame(ID = focal$mother_ID, Age = 0, stage = 0, mother_ID = "no", alive = 0,  kin = "mum")
       temp_mum$year <- j-1}
       
-      temp_sis <- filter(ind, mother_ID == focal$mother_ID & ID != focal$ID  & Age < temp_foc$Age)
+      temp_sis <- filter(ind, mother_ID == focal$mother_ID & ID != focal$ID  & Age == temp_foc$Age)
       temp_sis <-  temp_sis %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       if(nrow(temp_sis)>0){
-        temp_sis$kin <- "sister younger"
+        temp_sis$kin <- "sister same age"
         temp_sis$year <- j-1}
-      else{temp_sis <- data.frame(ID = -1, Age = 0, stage = 0, mother_ID = "no", alive = 0,  kin = "sister younger")
+      else{temp_sis <- data.frame(ID = -1, Age = 0, stage = 0, mother_ID = "no", alive = 0,  kin = "sister same age")
       temp_sis$year <- j-1}
       Foc_df <- rbind(Foc_df, rbind(temp_foc, temp_mum, temp_sis)) 
     }
@@ -97,7 +102,6 @@ foreach(reps = 1:no_reps)%do%{
     dead_ <- do_deaths(ind)
     ind <- dead_[[1]]
     deceased_coh <- dead_[[2]]
-    
     
   }
   
@@ -109,22 +113,26 @@ foreach(reps = 1:no_reps)%do%{
 }
 
 full_simulation <- do.call("rbind", sim_list)
+
 full_simulation1 <- full_simulation%>%dplyr::select(ID,Age,stage,alive,kin,year,sim_no,IC)
+
 full_simulation2 <- full_simulation1%>%group_by(alive, stage, kin, year, sim_no, IC)%>%
   summarise(alive = sum(alive))%>%
   ungroup()
-full_simulation2 <- full_simulation2%>%filter(kin == "sister younger" , stage != 0 &  stage!= "no" )%>%
+
+full_simulation2 <- full_simulation2%>%filter(kin == "sister same age" , stage != 0 &  stage!= "no" )%>%
   group_by(year, kin, stage, IC)%>%
   summarise(expected_val = sum(alive)/no_reps)%>%
   ungroup()
+
 full_simulation2%>%
   ggplot(aes(x = (year), y = expected_val, color = stage, fill = stage)) + theme_bw() +
   geom_bar(position = "stack", stat = "identity") + 
-  xlab("Focal's age") + ylab("Expected younger sisters") + ggtitle("... replicates of stoch B-D process") +
-  xlim(c(0,19)) + ylim(c(0,0.25))
+  xlab("Focal's age") + ylab("Expected same age") + ggtitle("... replicates of stoch B-D process") +
+  xlim(c(0,18)) + ylim(c(0,0.1))
 
 
-df_out <- here::here("Outputs", "Time invariant"  , "saved dataframes")
+df_out <- here::here("Examples", "ONS data", "Age and Stage", "Time invariant"  , "saved dataframes")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_sim_TI_IC7.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "SS_sim_stage_FULL_5000_strict_IC7.Rds" ))
