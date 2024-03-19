@@ -57,7 +57,7 @@ foreach(reps = 1:no_reps)%do%{
     ####### Create Focal's network of younger sisters ######
     if(j==1){
       Foc_df <- data.frame()
-      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==7)
+      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==3)
       focal1 <- focal_s[sample(nrow(focal_s), 1) ,]
       focal1$alive<-1
       focal1$kin <- "focal"
@@ -200,4 +200,4 @@ full_simulation2%>%
 df_out <- here::here("Outputs", "Comparisons", "Time invariant", "data frames")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_TI_IC7_comparison.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_TI_IC3_comparison.Rds" ))
