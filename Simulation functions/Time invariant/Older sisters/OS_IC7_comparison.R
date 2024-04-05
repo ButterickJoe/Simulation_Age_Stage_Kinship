@@ -10,14 +10,15 @@ source(here::here("Simulation functions","Demographic events","get_older.R"))
 stages_vector <- c(1,2,3,4,5,6,7)
 df_ages <- rep(seq(0,18,1),each=7)
 df_stages <- rep(seq(1,7,1), 19)
-
+df_stages
 transient_SPD_list <- list()
-no_replicaions <- 50 ### check code using 5
+no_replicaions <- 100 ### check code using 5
+no_replicaions_actual <- no_replicaions
 sim_list<-list()
-foreach(reps = 1:no_replicaions)%do%{
+
+for(reps in 1:no_replicaions){
   
   # record the time-varying "stable (or not so) population structure"
-  
   age_stage_df <- data.frame(Ages =df_ages, Stages = df_stages)
   age_stage_df$age_stage <- paste0(age_stage_df$Ages , "-" , age_stage_df$Stages)
   age_stage_df$New_age_stage <- NA
@@ -49,35 +50,35 @@ foreach(reps = 1:no_replicaions)%do%{
     return((1-Mots[[stage]][age]))}) )
   ind$prob_die <- die_prob
   
-  full_sis <- list()## need to keep track of the unique IDs that Focal's sisters have
-  foreach(j = seq(1, 30, 1))%do%{
+  for(j in seq(1, 30, 1)){
     
     ########### Migration ############################################################################
     ind <- create_new_stage(ind, TT, Fers, Mots)
-    
     ########## Aging ###############################################################################
     ind <- get_older(ind,TT,Fers,Mots)
-    
     ######### Sex (or reproduction) ##################################################################
     babies_ <- have_sex(ind, TT, Fers, Mots)
     ind <- babies_[[1]]
     newborn_number <- babies_[[2]]
     newborn_cohort <- babies_[[3]]
     
-    
     ### Update the stable population structure -- after births and before deaths?
     age_stage_df$New_age_stage <- lapply(1:nrow(age_stage_df), function(x){
       sum( ind$Age == age_stage_df$Age[x] & ind$stage == age_stage_df$Stage[x] ) } )
     normalised_transient_SPD <- age_stage_df$New_age_stage%>%unlist()
     transient_SPD[,(2+j)] <- normalised_transient_SPD/(sum(normalised_transient_SPD))
-    
     ############ Here I pick some random focal, and its mother, and subsequently track them through the simulation
     ### For the first year focal, by definition has a mother, but no sister
-    
-    if(j==8){
 
+    if(j==8){
+      if(sum(newborn_number)==0){
+        no_replicaions_actual <- no_replicaions_actual - 1
+        break}
+      if(nrow(newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==7))==0){
+        no_replicaions_actual <- no_replicaions_actual - 1
+        break}
       Foc_df <- data.frame()
-      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==3)
+      focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==7)
       focal1 <- focal_s[sample(nrow(focal_s), 1) ,]
       focal1$alive<-1
       focal1$kin <- "focal"
@@ -92,7 +93,7 @@ foreach(reps = 1:no_replicaions)%do%{
       focal <-rbind(focal1,focal_complement)
       
       
-      mother1 <- ind%>%filter(ID == focal$mother_ID)
+      mother1 <- ind%>%filter(ID == focal1$mother_ID)
       mother1 <- mother1 %>% dplyr::select(ID,Age,stage,mother_ID,alive)
       mother1$alive <- 1
       mother1$kin <- "mum"
@@ -130,8 +131,8 @@ foreach(reps = 1:no_replicaions)%do%{
       
       Foc_df <- rbind(focal, mother, o_sister)
       Foc_df$year <- j-1 ## By construction, the first ID in the sisters is -1 as there are none yet!
-    } 
-    ### For years > 1 focal can die, lose mother, gain and lose sisters
+      } 
+    ### For years > 8 focal can die, lose mother, gain and lose sisters
     else{
       temp_foc1 <- filter(ind, ID == focal1$ID )
       temp_foc1 <- temp_foc1 %>% dplyr::select(ID,Age,stage,mother_ID,alive)
@@ -148,7 +149,7 @@ foreach(reps = 1:no_replicaions)%do%{
       else{temp_foc <- data.frame(ID = rep(NA,length(stages_vector)), 
                                   Age = rep((j - 1) ,length(stages_vector)), 
                                   stage = stages_vector, 
-                                  mother_ID = rep(focal$mother_ID,length(stages_vector)),
+                                  mother_ID = rep(focal1$mother_ID,length(stages_vector)),
                                   alive = rep(0,length(stages_vector)),
                                   kin = rep("focal",length(stages_vector)))}
       
@@ -205,41 +206,40 @@ foreach(reps = 1:no_replicaions)%do%{
     ind <- dead_[[1]]
     deceased_coh <- dead_[[2]]
     
-    
-    
-  }
+    } 
+  
   ## replication number of focals network (for ensemble average)
   Foc_df1 <- Foc_df
   Foc_df1$sim_no <- reps
   Foc_df1$IC <- focal_birth_stage
   sim_list[[(1+length(sim_list))]] <- Foc_df1
   
-  transient_SPD_list1 <- transient_SPD
-  transient_SPD_list1$sim_no <- reps
-  transient_SPD_list[[reps]] <-  transient_SPD_list1
+  #transient_SPD_list1 <- transient_SPD
+  #transient_SPD_list1$sim_no <- reps
+  #transient_SPD_list[[reps]] <-  transient_SPD_list1
   
 }
-full_simulation%>%head()
+no_replicaions_actual
 full_simulation <- do.call("rbind", sim_list)
 full_simulation1 <- full_simulation%>%dplyr::select(ID,Age,stage,alive,kin,year,sim_no,IC,mother_ID)
 
 full_simulation2 <- full_simulation1%>%filter(kin == "sister older" , stage != 0 &  stage!= "no" )%>%
   group_by(year, stage, IC)%>%
-  summarise(expected_val = sum(alive)/no_replicaions)%>%
+  summarise(expected_val = sum(alive)/no_replicaions_actual)%>%
   ungroup()
 
 full_simulation2%>%
-  ggplot(aes(x = (year-7), y = expected_val, color = stage, fill = stage)) + theme_bw() +
+  ggplot(aes(x = (year-6), y = expected_val, color = stage, fill = stage)) + theme_bw() +
   geom_bar(position = "stack", stat = "identity") + 
   xlab("Focal's age") + ylab("Expected older sisters") + ggtitle("... replicates of stoch B-D process") +
-  xlim(c(0,18)) + ylim(c(0,0.5))
+  xlim(c(0,18)) + ylim(c(0,0.25))
 
 reps
 
 df_out <- here::here("Outputs", "Comparisons", "Time invariant", "data frames")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "OS_TI_IC3_comparison.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "OS_TI_IC7_comparison.Rds" ))
 
 
 ################# Export the stable population structure ####################

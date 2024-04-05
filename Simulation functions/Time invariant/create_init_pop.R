@@ -91,7 +91,7 @@ for(i in 1:length(sps)){
   index_stage <- (i-1)%%7 + 1
   df$age[i] <- index_age
   df$stage[i] <- index_stage
-  df$value[i] <- sps[i]*10000  
+  df$value[i] <- sps[i]*50000  
 }
 
 df%>%summarise(sum(value))
