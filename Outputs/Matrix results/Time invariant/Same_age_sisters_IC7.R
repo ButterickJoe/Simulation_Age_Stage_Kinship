@@ -99,7 +99,7 @@ df_my_variant_poiss <- full_younger_sis%>%dplyr::select(full_dist,age_foc,kin_ag
 
 df_my_variant_poiss <- df_my_variant_poiss%>%
   transmute(Age_foc = age_foc, cum_kin = full_dist, stage = kin_stage,
-            kin = "sisters and Focal" , method = "Poisson")%>%
+            kin = "sisters and Focal" , method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
 
 

@@ -61,42 +61,16 @@ col_scal <- RColorBrewer::brewer.pal(10, "Set1")
 
 M_COMP$cum_kin <- as.numeric(M_COMP$cum_kin)
 M_COMP%>%head()
-M_COMP_wide <- M_COMP%>%pivot_wider(names_from = "method", values_from = "cum_kin")
-
-M_COMP_wide%>%head()
-M_COMP_WIDE <- M_COMP_wide%>%
-  mutate(diff_simulation_truncated_Poisson = `stochastic simulation` - `Poisson`)
 
 
-plot_sim_ves_mat <- M_COMP_WIDE%>%
-  dplyr::select(stage,Age_class,diff_simulation_truncated_Poisson)%>%
-  melt(id = c("Age_class" , "stage") )%>%ggplot(aes(x = Age_class,  y =value,  color = stage)) + geom_point() + theme_bw()+ 
-  ylab("differnce") + xlab("Age class") +
-  theme(axis.text.x = element_text(angle = 90)) + ylim(c(-0.1,0.1))+
-  scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
-  scale_fill_manual(labels = clus_lab, values = col_scal[1:no_stage])  +
-  theme(text = element_text(size = 12),
-        strip.text.x = element_text(size = 12),
-        plot.title = element_text(size = 13),
-        axis.text.x = element_text(angle = (45+90)/3 , hjust = 0.8)) + 
-  theme(legend.position = "top") +  
-  ggtitle("Differences: Matrix model vs simualtion") + 
-  ggeasy::easy_center_title() + scale_x_discrete()
-
-plot_sim_ves_mat
-
-
-ggsave(plot_sim_ves_mat, file = paste0(plt_out , "/" , "SS_and_F_simulation_v_matrix.png" ), width = 6, height = 4, dpi = 300)
-
-
-plt_SS1_and_Foc <-  M_COMP%>%filter(method == "Poisson" | method == "stochastic simulation")%>%
+plt_SS1_and_Foc <-  M_COMP%>%filter(method == "matrix model" | method == "stochastic simulation")%>%
   ggplot(aes(x = Age_class, y = cum_kin, color = stage, fill = stage)) +
   geom_bar(position = "stack", stat = "identity")  + facet_grid(~ method) +
   ggtitle("Comparison given Focal born into cluster 7") +
   scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
   scale_fill_manual(labels = clus_lab, values = col_scal[1:no_stage]) + theme_bw() +
   labs( fill = "Sister & Focal's stage", color = "Sister & Focal's stage") + 
-  ylab("Expected no. Focal + same age sisters") + xlab("Age of Focal") +
+  ylab("Expected no. sisters") + xlab("Age of Focal") +
   theme(text = element_text(size = 12),
         strip.text.x = element_text(size = 12),
         plot.title = element_text(size = 13),

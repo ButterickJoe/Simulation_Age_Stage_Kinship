@@ -12,6 +12,7 @@ df_stages <- rep(seq(1,7,1), 19)
 
 
 no_replicaions <- 5000 ### check code using 5
+no_replicaions_actual <- no_replicaions
 sim_list<-list()
 foreach(reps = 1:no_replicaions)%do%{
   
@@ -74,7 +75,13 @@ foreach(reps = 1:no_replicaions)%do%{
     ### For the first year focal, by definition has a mother, but no sister
     
     if(j==8){
-      #if(is.null(born_F)){break}
+      if(sum(newborn_number)==0){
+        no_replicaions_actual <- no_replicaions_actual - 1
+        break}
+      if(nrow(newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage==7))==0){
+        no_replicaions_actual <- no_replicaions_actual - 1
+        break}
+
       Foc_df <- data.frame()
       focal_s <- newborn_cohort%>%dplyr::select(ID,Age,stage,mother_ID,alive)%>%filter(stage == 3)
       focal <- focal_s[sample(nrow(focal_s), 1) ,]

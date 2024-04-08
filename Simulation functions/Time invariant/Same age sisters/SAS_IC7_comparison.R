@@ -193,16 +193,18 @@ full_simulation2 <- full_simulation1%>%group_by(alive, stage, kin, year, sim_no,
   summarise(alive = sum(alive))%>%
   ungroup()
 
-full_simulation2 <- full_simulation2%>%filter( (kin == "sister same age" | kin =="focal" ) , stage != 0 &  stage!= "no" )%>%
+full_simulation2 <- full_simulation2%>%filter( (kin =="focal" ) , stage != 0 &  stage!= "no" )%>%
   group_by(year, kin, stage, IC)%>%
   summarise(expected_val = sum(alive)/no_reps)%>%
   ungroup()
 
+full_simulation2
+
 full_simulation2%>%
-  ggplot(aes(x = (year), y = expected_val, color = stage, fill = stage)) + theme_bw() +
+  ggplot(aes(x = (year+1), y = expected_val, color = stage, fill = stage)) + theme_bw() +
   geom_bar(position = "stack", stat = "identity") + 
   xlab("Focal's age") + ylab("Expected same age") + ggtitle("... replicates of stoch B-D process") +
-  xlim(c(0,18)) + ylim(c(0,1.1))
+  xlim(c(0,19)) + ylim(c(0,1.2))
 
 
 df_out <- here::here("Examples", "ONS data", "Age and Stage", "Time invariant"  , "saved dataframes")

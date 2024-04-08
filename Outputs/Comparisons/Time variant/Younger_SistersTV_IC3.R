@@ -29,7 +29,7 @@ col_scal <- RColorBrewer::brewer.pal(10, "Set1")
 
 plt_comparison <- Y_SIS%>%ggplot(aes(x = Age_class, y = cum_kin, color = stage, fill = stage)) +
   geom_bar(position = "stack", stat = "identity")  + facet_grid(~ method) +
-  ggtitle("Focal born into cluster 3") +
+  ggtitle("Comparison given Focal born into cluster 3") +
   scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
   scale_fill_manual(labels = clus_lab, values = col_scal[1:no_stage]) + theme_bw() +
   labs( fill = "Sister's stage", color = "Sister's stage") + 
