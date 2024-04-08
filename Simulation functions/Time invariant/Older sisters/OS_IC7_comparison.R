@@ -25,7 +25,6 @@ for(reps in 1:no_replicaions){
   transient_SPD <- data.frame(age_stage = paste0(age_stage_df$Ages , "-" , age_stage_df$Stages))
   transient_SPD$num_age_stage <- seq(1,133,1)
   
-  
   ## create a fictional age-structured pop, with inds given unique ID
   ind <-  data.frame(ID = seq(1,length(age_dist),1), 
                      Age = rep(age_dist, 1), ## marginal stage dist
@@ -91,7 +90,6 @@ for(reps in 1:no_replicaions){
                                      alive = rep(0,length(other_stages_foc)), 
                                      kin = rep("focal",length(other_stages_foc)))
       focal <-rbind(focal1,focal_complement)
-      
       
       mother1 <- ind%>%filter(ID == focal1$mother_ID)
       mother1 <- mother1 %>% dplyr::select(ID,Age,stage,mother_ID,alive)

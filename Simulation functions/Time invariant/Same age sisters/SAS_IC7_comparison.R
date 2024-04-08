@@ -6,10 +6,7 @@ source(here::here("Simulation functions","Demographic events","get_older.R"))
 
 
 stages_vector <- c(1,2,3,4,5,6,7)
-no_replicaions <- 100 ### check code using 5
-sim_list<-list()
-
-no_reps <- 5000
+no_reps <- 500
 sim_list <- list()
 foreach(reps = 1:no_reps)%do%{
   ### Initialise population
@@ -211,4 +208,4 @@ full_simulation2%>%
 df_out <- here::here("Examples", "ONS data", "Age and Stage", "Time invariant"  , "saved dataframes")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "SS_sim_stage_FULL_5000_strict_IC7.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "SS_F_IC7_comparison.Rds" ))
