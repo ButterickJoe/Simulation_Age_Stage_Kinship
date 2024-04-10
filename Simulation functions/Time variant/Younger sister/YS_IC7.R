@@ -134,5 +134,8 @@ full_simulation2%>%
   geom_bar(position = "stack", stat = "identity") + 
   xlab("Focal's age") + ylab("Expected younger sisters") + ggtitle("... replicates of stoch B-D process") +
   xlim(c(0,19)) + ylim(c(0,0.25))
+no_reps
+df_out <- here::here("Outputs", "Comparisons", "Time variant", "data frames")
+fs::dir_create(df_out)
 
-
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "YS_IC7_TV.Rds" ))

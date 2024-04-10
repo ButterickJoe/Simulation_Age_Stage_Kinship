@@ -8,11 +8,11 @@ source(here::here("Matrix model"  , "General functions" ,  "data_frame_construct
 source(here::here("Matrix model"  , "General functions" ,  "matrix_prod.R"))
 source(here::here("Matrix model"  , "Kin projections",  "Younger_sisters.R"))
 
-df_out <- here::here("Outputs","Time variant", "saved dataframes")
+df_out <- here::here("Outputs","Comparisons","Time variant", "data frames")
 fs::dir_create(df_out)
 
 
-plt_out <-  here::here("Outputs","Time variant", "Figs")
+plt_out <-  here::here("Outputs","Comparisons","Time variant", "Figs")
 fs::dir_create(df_out)
 
 F_list <- read_rds(here::here("Data", "Time variant", "TV_list_fert_MS_NAT.Rds"))
@@ -79,11 +79,11 @@ df_my_variant <- full_younger_sis%>%dplyr::select(full_dist,age_foc,kin_age,kin_
 
 df_my_variant <- df_my_variant%>%
   transmute(Age_foc = age_foc, cum_kin = full_dist, stage = kin_stage,
-            kin = "younger sisters" ,method = "matrix model")%>%
+            kin = "sister younger" ,method = "matrix model")%>%
   dplyr::select(Age_foc,cum_kin,stage,kin,method)
 
-df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(5*Age_foc, 5*Age_foc + 4, sep = "-"),
-                                        Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
+#df_my_variant <- df_my_variant%>%mutate(Foc_age_class = paste(5*Age_foc, 5*Age_foc + 4, sep = "-"),
+                                      #  Foc_age_class = reorder(Foc_age_class, Age_foc, mean))
 
 ic_lab <- as_labeller(c('1' = "Focal born in cluster 1",
                         '2' = "Focal born in cluster 2",
@@ -98,7 +98,7 @@ clus_lab <- c("Cluster 1", "Cluster 2","Cluster 3",
 col_scal <- RColorBrewer::brewer.pal(10, "Set1")
 
 df_my_variant%>%
-  ggplot(aes(x = Foc_age_class, y = cum_kin , color = stage, fill = stage)) + 
+  ggplot(aes(x = Age_foc, y = cum_kin , color = stage, fill = stage)) + 
   geom_bar(position = "stack" , stat = "identity") + 
   scale_color_manual(labels = clus_lab, values = col_scal[1:no_stage])+
   scale_fill_manual(labels = clus_lab,values = col_scal[1:no_stage]) + theme_bw() +
@@ -112,6 +112,6 @@ df_my_variant%>%
   ggeasy::easy_center_title() + scale_x_discrete() 
 
 
-
+saveRDS(df_my_variant, file = paste0(df_out , "/" , "YS_matrixTV_IC7.Rds" ))
 
 

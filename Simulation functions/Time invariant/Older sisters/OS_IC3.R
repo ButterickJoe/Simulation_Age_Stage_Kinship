@@ -154,12 +154,13 @@ foreach(reps = 1:no_replicaions)%do%{
   transient_SPD_list[[reps]] <-  transient_SPD_list1
   
 }
+no_reps
 full_simulation%>%head()
 full_simulation <- do.call("rbind", sim_list)
 full_simulation1 <- full_simulation%>%dplyr::select(ID,Age,stage,alive,kin,year,sim_no,IC,mother_ID)
 
 full_simulation2 <- full_simulation1%>%filter(kin == "sister older" , stage != 0 &  stage!= "no" )%>%
-  group_by(year, stage, IC)%>%
+  group_by(year, kin, stage, IC)%>%
   summarise(expected_val = sum(alive)/no_replicaions)%>%
   ungroup()
 
@@ -171,10 +172,10 @@ full_simulation2%>%
 
 reps
 
-df_out <- here::here("Outputs", "Time invariant"  , "saved dataframes")
+df_out <- here::here("Outputs","Comparisons", "Time invariant"  , "data frames")
 fs::dir_create(df_out)
 
-saveRDS(full_simulation2, file = paste0(df_out , "/" , "OS_sim_TI_IC3.Rds" ))
+saveRDS(full_simulation2, file = paste0(df_out , "/" , "OS_IC3.Rds" ))
 #
 
 ################# Export the stable population structure ####################
