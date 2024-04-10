@@ -7,9 +7,10 @@ sim_sis_df$Age_foc
 sim_sis_df$method <- "stochastic simulation"
 
 
-df_my_variant <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "OS_MatrixResult_IC3.Rds"))
+#df_my_variant <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "OS_MatrixResult_IC3.Rds"))
+df_my_variant <- read_rds(here::here("Outputs", "Comparisons", "Time invariant", "data frames", "OS_MatrixResult_IC3_stablePopStruct.Rds"))
 
-
+df_my_variant%>%head()
 nrow(sim_sis_df)
 nrow(df_my_variant)
 
